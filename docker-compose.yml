@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:${POSTGRES_TAG:-17-alpine}
+    container_name: logto_postgres
+    restart: unless-stopped
+    user: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-logto}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-logto}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-logto} -d ${POSTGRES_DB:-logto}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - logto_internal
+
+  logto:
+    image: svhd/logto:${LOGTO_TAG:-latest}
+    container_name: logto
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
+    ports:
+      - "${LOGTO_PORT:-3001}:3001"
+      - "${LOGTO_ADMIN_PORT:-3002}:3002"
+    environment:
+      DB_URL: postgres://${POSTGRES_USER:-logto}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-logto}
+      ENDPOINT: ${ENDPOINT:-}
+      ADMIN_ENDPOINT: ${ADMIN_ENDPOINT:-}
+      TRUST_PROXY_HEADER: ${TRUST_PROXY_HEADER:-1}
+      PRIVATE_KEY_ROTATION_GRACE_PERIOD: ${PRIVATE_KEY_ROTATION_GRACE_PERIOD:-}
+    networks:
+      - logto_internal
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  logto_internal:
+    driver: bridge
