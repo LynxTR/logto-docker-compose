@@ -40,7 +40,11 @@ services:
       ADMIN_ENDPOINT: ${ADMIN_ENDPOINT:-}
       TRUST_PROXY_HEADER: ${TRUST_PROXY_HEADER:-1}
       PRIVATE_KEY_ROTATION_GRACE_PERIOD: ${PRIVATE_KEY_ROTATION_GRACE_PERIOD:-}
+      NODE_EXTRA_CA_CERTS: ${NODE_EXTRA_CA_CERTS:-}
+    volumes:
+      - ${CA_CERT_HOST_PATH:-/dev/null}:${NODE_EXTRA_CA_CERTS:-/dev/null}:ro
     extra_hosts:
+      - "${LOGTO_ENDPOINT_HOST:-auth.example.com}:${NGINX_HOST_IP:-host-gateway}"
       - "${LOGTO_ADMIN_HOST:-auth-admin.example.com}:${NGINX_HOST_IP:-host-gateway}"
     networks:
       - logto_internal
