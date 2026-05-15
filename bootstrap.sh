@@ -13,7 +13,7 @@ if [[ -f "$ENV_FILE" ]]; then
 fi
 
 generate_password() {
-  tr -dc 'A-Za-z0-9!@#%^&*' </dev/urandom 2>/dev/null | head -c 32 || true
+  tr -dc 'A-Za-z0-9' </dev/urandom 2>/dev/null | head -c 32 || true
 }
 
 POSTGRES_PASSWORD=$(generate_password)

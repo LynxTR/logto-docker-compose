@@ -35,7 +35,7 @@ services:
       - "${LOGTO_PORT:-3001}:3001"
       - "${LOGTO_ADMIN_PORT:-3002}:3002"
     environment:
-      DB_URL: postgres://${POSTGRES_USER:-logto}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-logto}
+      DB_URL: ${DB_URL:-postgres://${POSTGRES_USER:-logto}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-logto}}
       ENDPOINT: ${ENDPOINT:-}
       ADMIN_ENDPOINT: ${ADMIN_ENDPOINT:-}
       TRUST_PROXY_HEADER: ${TRUST_PROXY_HEADER:-1}
